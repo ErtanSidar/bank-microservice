@@ -34,10 +34,8 @@ public class AccountsController {
 
     private final IAccountsService iAccountsService;
 
-    @Autowired
     private Environment environment;
 
-    @Autowired
     private AccountsContactInfoDto accountsContactInfoDto;
 
     @Value("${build.version}")

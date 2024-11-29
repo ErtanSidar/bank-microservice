@@ -16,11 +16,11 @@ spring:
     show-sql: true
   config:
     import:
-      - "application_qa.yml"
-      - "application_prod.yml"
+      -"application_qa.yml"
+      -"application_prod.yml"
   profiles:
     active:
-      - "qa"
+      -"qa"
 
 build:
   version: "3.0"
