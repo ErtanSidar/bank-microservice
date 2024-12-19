@@ -93,7 +93,7 @@
                 <version>3.4.2</version>
                 <configuration>
                     <to>
-                        <image>essoft3/${project.artifactId}:s6</image>
+                        <image>essoft3/${project.artifactId}:s7</image>
                     </to>
                 </configuration>
             </plugin>
