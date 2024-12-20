@@ -1,8 +1,8 @@
 server:
-  port: 8090
+  port: 8080
 spring:
   application:
-    name: "loans"
+    name: "accounts"
   profiles:
     active: "prod"
   datasource:
@@ -48,6 +48,6 @@ eureka:
 
 info:
   app:
-    name: "loans"
-    description: "Essoft Bank Loans Application"
+    name: "accounts"
+    description: "Eazy Bank Accounts Application"
     version: "1.0.0"
