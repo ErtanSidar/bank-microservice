@@ -22,6 +22,12 @@ management:
     env:
       enabled: true
 
+logging:
+  level:
+    com:
+      essoft:
+        gatewayserver: DEBUG
+
 info:
   app:
     name: "gatewayserver"

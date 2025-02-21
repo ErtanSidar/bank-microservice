@@ -1,11 +1,11 @@
-package com.essoft.loans.controller;
+package com.essoft.accounts.controller;
 
-import com.essoft.loans.constants.LoansConstants;
-import com.essoft.loans.dto.ErrorResponseDto;
-import com.essoft.loans.dto.LoansContactInfoDto;
-import com.essoft.loans.dto.LoansDto;
-import com.essoft.loans.dto.ResponseDto;
-import com.essoft.loans.service.ILoansService;
+import com.essoft.accounts.constants.AccountsConstants;
+import com.essoft.accounts.dto.AccountsContactInfoDto;
+import com.essoft.accounts.dto.CustomerDto;
+import com.essoft.accounts.dto.ErrorResponseDto;
+import com.essoft.accounts.dto.ResponseDto;
+import com.essoft.accounts.service.IAccountsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,8 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -26,34 +24,33 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(
-        name = "CRUD REST APIs for Loans in EssoftBank",
-        description = "CRUD REST APIs in EssoftBank to CREATE, UPDATE, FETCH AND DELETE loan details"
+        name = "CRUD REST APIs for Accounts in EssoftBank",
+        description = "CRUD REST APIs in EssoftBank to CREATE, UPDATE, FETCH AND DELETE account details"
 )
 @RestController
 @RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
 @Validated
-public class LoansController {
+public class AccountsController {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoansController.class);
+    private final IAccountsService iAccountsService;
 
-    private final ILoansService iLoansService;
+    @Autowired
+    private Environment environment;
+
+    @Autowired
+    private AccountsContactInfoDto accountsContactInfoDto;
 
     @Value("${build.version}")
     private String buildVersion;
 
     @Autowired
-    private Environment environment;
-
-    private LoansContactInfoDto loansContactInfoDto;
-
-    @Autowired
-    public LoansController(ILoansService iLoansService) {
-        this.iLoansService = iLoansService;
+    public AccountsController(IAccountsService iAccountsService) {
+        this.iAccountsService = iAccountsService;
     }
 
     @Operation(
-            summary = "Create Loan REST API",
-            description = "REST API to create new loan inside EssoftBank"
+            summary = "Create Account REST API",
+            description = "REST API to create new Customer &  Account inside EssoftBank"
     )
     @ApiResponses({
             @ApiResponse(
@@ -67,21 +64,18 @@ public class LoansController {
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     )
             )
-    }
-    )
+    })
     @PostMapping("/create")
-    public ResponseEntity<ResponseDto> createLoan(@RequestParam
-                                                  @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
-                                                  String mobileNumber) {
-        iLoansService.createLoan(mobileNumber);
+    public ResponseEntity<ResponseDto> createAccount(@Valid @RequestBody CustomerDto customerDto) {
+        iAccountsService.createAccount(customerDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(LoansConstants.STATUS_201, LoansConstants.MESSAGE_201));
+                .body(new ResponseDto(AccountsConstants.STATUS_201, AccountsConstants.MESSAGE_201));
     }
 
     @Operation(
-            summary = "Fetch Loan Details REST API",
-            description = "REST API to fetch loan details based on a mobile number"
+            summary = "Fetch Account Details REST API",
+            description = "REST API to fetch Customer &  Account details based on a mobile number"
     )
     @ApiResponses({
             @ApiResponse(
@@ -98,18 +92,16 @@ public class LoansController {
     }
     )
     @GetMapping("/fetch")
-    public ResponseEntity<LoansDto> fetchLoanDetails(@RequestHeader("essoftbank-correlation-id") String correlationId,
-                                                     @RequestParam
-                                                     @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
-                                                     String mobileNumber) {
-        logger.debug("essoftBank-correlation-id found: {} ", correlationId);
-        LoansDto loansDto = iLoansService.fetchLoan(mobileNumber);
-        return ResponseEntity.status(HttpStatus.OK).body(loansDto);
+    public ResponseEntity<CustomerDto> fetchAccountDetails(@RequestParam
+                                                           @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
+                                                           String mobileNumber) {
+        CustomerDto customerDto = iAccountsService.fetchAccountDetails(mobileNumber);
+        return ResponseEntity.status(HttpStatus.OK).body(customerDto);
     }
 
     @Operation(
-            summary = "Update Loan Details REST API",
-            description = "REST API to update loan details based on a loan number"
+            summary = "Update Account Details REST API",
+            description = "REST API to update Customer &  Account details based on a account number"
     )
     @ApiResponses({
             @ApiResponse(
@@ -130,22 +122,22 @@ public class LoansController {
     }
     )
     @PutMapping("/update")
-    public ResponseEntity<ResponseDto> updateLoanDetails(@Valid @RequestBody LoansDto loansDto) {
-        boolean isUpdated = iLoansService.updateLoan(loansDto);
+    public ResponseEntity<ResponseDto> updateAccountDetails(@Valid @RequestBody CustomerDto customerDto) {
+        boolean isUpdated = iAccountsService.updateAccount(customerDto);
         if (isUpdated) {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new ResponseDto(LoansConstants.STATUS_200, LoansConstants.MESSAGE_200));
+                    .body(new ResponseDto(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
         } else {
             return ResponseEntity
                     .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_UPDATE));
+                    .body(new ResponseDto(AccountsConstants.STATUS_417, AccountsConstants.MESSAGE_417_UPDATE));
         }
     }
 
     @Operation(
-            summary = "Delete Loan Details REST API",
-            description = "REST API to delete Loan details based on a mobile number"
+            summary = "Delete Account & Customer Details REST API",
+            description = "REST API to delete Customer &  Account details based on a mobile number"
     )
     @ApiResponses({
             @ApiResponse(
@@ -166,24 +158,24 @@ public class LoansController {
     }
     )
     @DeleteMapping("/delete")
-    public ResponseEntity<ResponseDto> deleteLoanDetails(@RequestParam
-                                                         @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
-                                                         String mobileNumber) {
-        boolean isDeleted = iLoansService.deleteLoan(mobileNumber);
+    public ResponseEntity<ResponseDto> deleteAccountDetails(@RequestParam
+                                                            @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
+                                                            String mobileNumber) {
+        boolean isDeleted = iAccountsService.deleteAccount(mobileNumber);
         if (isDeleted) {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(new ResponseDto(LoansConstants.STATUS_200, LoansConstants.MESSAGE_200));
+                    .body(new ResponseDto(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
         } else {
             return ResponseEntity
                     .status(HttpStatus.EXPECTATION_FAILED)
-                    .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_DELETE));
+                    .body(new ResponseDto(AccountsConstants.STATUS_417, AccountsConstants.MESSAGE_417_DELETE));
         }
     }
 
     @Operation(
             summary = "Get Build information",
-            description = "Get Build information that is deployed into cards microservice"
+            description = "Get Build information that is deployed into accounts microservice"
     )
     @ApiResponses({
             @ApiResponse(
@@ -201,14 +193,12 @@ public class LoansController {
     )
     @GetMapping("/build-info")
     public ResponseEntity<String> getBuildInfo() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(buildVersion);
+        return ResponseEntity.status(HttpStatus.OK).body(buildVersion);
     }
 
     @Operation(
             summary = "Get Java version",
-            description = "Get Java versions details that is installed into cards microservice"
+            description = "Get Java versions details that is installed into accounts microservice"
     )
     @ApiResponses({
             @ApiResponse(
@@ -250,10 +240,9 @@ public class LoansController {
     }
     )
     @GetMapping("/contact-info")
-    public ResponseEntity<LoansContactInfoDto> getContactInfo() {
+    public ResponseEntity<AccountsContactInfoDto> getContactInfo() {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(loansContactInfoDto);
+                .body(accountsContactInfoDto);
     }
-
 }
