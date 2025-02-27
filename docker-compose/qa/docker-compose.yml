@@ -12,7 +12,7 @@ services:
       service: network-deploy-service
 
   configserver:
-    image: "essoft3/configserver:s10"
+    image: "essoft3/configserver:s11"
     container_name: configserver-ms
     ports:
       - "8071:8071"
